@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-laravel-service
+  namespace: development
+spec:
+  selector:
+    app: demo-laravel
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-postgres-service
+  namespace: development
+spec:
+  selector:
+    app: demo-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-pgadmin-service
+  namespace: development
+spec:
+  selector:
+    app: demo-pgadmin
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-redis-service
+  namespace: development
+spec:
+  selector:
+    app: demo-redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-elasticsearch-service
+  namespace: development
+spec:
+  selector:
+    app: demo-elasticsearch
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-kibana-service
+  namespace: development
+spec:
+  selector:
+    app: demo-kibana
+  ports:
+    - protocol: TCP
+      port: 5601
+      targetPort: 5601
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-rabbitmq-service
+  namespace: development
+spec:
+  selector:
+    app: demo-rabbitmq
+  ports:
+    - protocol: TCP
+      port: 15672
+      targetPort: 15672

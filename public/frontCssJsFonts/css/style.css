@@ -1,0 +1,12 @@
+.login-card #email, .login-card #password{
+    font-size: 12px;
+}
+.login-card button, .register-card button{
+    font-size: 12px;
+}
+.login-card, .register-card{
+    margin-top: 150px;
+}
+.register-card input{
+    font-size: 12px !important;
+}

@@ -1,0 +1,129 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./:/var/www
+      - ./_docker/nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - 8876:80
+      - 5173:5173
+    depends_on:
+      - app
+    container_name: demo_laravel
+
+  app:
+    build:
+      context: .
+      dockerfile: _docker/app/Dockerfile
+    volumes:
+      - ./:/var/www
+    container_name: demo_app # docker exec -it demo_app  bash
+    depends_on:
+      - db
+  db:
+    image: postgres:latest
+    deploy:
+        resources:
+            limits:
+                memory: 1G
+    restart: always
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    environment:
+        POSTGRES_DB: mydb
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: root
+    ports:
+      - 5432:5432
+    container_name: demo_db
+  pgadmin:
+      image: dpage/pgadmin4
+      deploy:
+          resources:
+              limits:
+                  memory: 1G
+      container_name: demo_pgAdmin
+      ports:
+       - 5555:80
+      depends_on:
+          - db
+      environment:
+          PGADMIN_DEFAULT_EMAIL: kerob.job@gmail.com
+          PGADMIN_DEFAULT_PASSWORD: root
+  redis:
+    image: redis:6.2-alpine
+    deploy:
+        resources:
+            limits:
+                memory: 1G
+    restart: always
+    container_name: demo_redis
+    ports:
+        - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+        - cache:/data
+    environment:
+        REDIS_HOST: cache
+        REDIS_PORT: 6379
+        REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+  elasticsearch:
+      image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+      deploy:
+          resources:
+              limits:
+                  memory: 1G
+      container_name: demo_elasticsearch
+      volumes:
+          - elasticsearch-data:/usr/share/elasticsearch/data
+      ports:
+          - ${ES_PORT}:9200
+      restart: always
+      environment:
+          - xpack.security.enabled=false
+          - discovery.type=single-node
+      ulimits:
+          memlock:
+              soft: -1
+              hard: -1
+  kibana:
+      depends_on:
+          - elasticsearch
+      image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+      deploy:
+          resources:
+              limits:
+                  memory: 1G
+      container_name: demo_kibana
+      volumes:
+          - kibana-data:/usr/share/kibana/data
+      ports:
+          - ${KIBANA_PORT}:5601
+      restart: always
+      environment:
+          - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  rabbitmq:
+    image: rabbitmq:3.10.7-management
+    deploy:
+        resources:
+            limits:
+                memory: 1G
+    container_name: demo_rabbitmq
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=rmuser
+      - RABBITMQ_DEFAULT_PASS=rmpassword
+    ports:
+        - 5672:5672 # RabbitMQ default AMQP port
+        - 15672:15672 # RabbitMQ management UI port
+
+volumes:
+    cache:
+    elasticsearch-data:
+        driver: local
+    kibana-data:
+        driver: local
+
